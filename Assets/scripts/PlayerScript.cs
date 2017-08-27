@@ -11,6 +11,8 @@ public class PlayerScript : MonoBehaviour {
 	public float damage = 10;
 	public float range = 100;
 	public float bulletSpeed = 10f;
+	float recoil = 0f; //degrees
+	float recoilLimit = 5f;
 
 	float timeToFire = 0;
 
@@ -84,6 +86,7 @@ public class PlayerScript : MonoBehaviour {
 
 		//get angle from direction
 		float angle = Mathf.Atan2 (offset.y, offset.x) * Mathf.Rad2Deg;
+		angle += recoil;
 		//playerModel.transform.rotation = Quaternion.Euler (0, 0, angle);
 		//Debug.Log("Angle= " + angle);
 		transform.rotation = Quaternion.RotateTowards(
@@ -95,25 +98,28 @@ public class PlayerScript : MonoBehaviour {
 
 	void Shooting (){
 		Vector3 forward = fireOrigin.transform.TransformDirection (Vector3.right) * 10;
-		//Debug.DrawRay (fireOrigin.transform.position, forward, Color.cyan);
 
 		if (fireRate == 0) {
 			if (Input.GetButtonDown ("Fire1")) {
 
 			}
 			Fire();
-			audio.Play ();
+			//Debug.DrawRay (fireOrigin.transform.position, forward, Color.cyan);
+			recoil = Random.Range (-recoilLimit, recoilLimit);
+			//audio.Play ();
 		} else {
 			if (Input.GetButton ("Fire1") && Time.time > timeToFire) {
 				timeToFire = Time.time + 1 / fireRate;
 				Fire ();
-				audio.Play ();
+				Debug.DrawRay (fireOrigin.transform.position, forward, Color.cyan);
+				recoil = Random.Range (-recoilLimit, recoilLimit);
+				//audio.Play ();
 			}
 		}
 	}
 
 	void Fire(){
-
+		audio.Play ();
 		//float angleToFire=Quaternion.Angle(Quaternion.Euler(new Vector3(0,0,0)),fireOrigin.transform.rotation);
 		float angleToFire=Quaternion.Angle(
 				Quaternion.Euler(new Vector3(0,0,0)),
@@ -128,7 +134,8 @@ public class PlayerScript : MonoBehaviour {
 		if (fireOrigin.transform.rotation.z < 0) {
 			angleToFire -= (angleToFire*2);
 		}
-
+		//recoil = Random.Range (-recoilLimit, recoilLimit);
+		//angleToFire += recoil;
 		//shoot a bullet
 		/*
 		Transform bulletInstance = Instantiate(
@@ -139,7 +146,7 @@ public class PlayerScript : MonoBehaviour {
 
 		bulletInstance.GetComponent <BulletScript>().bulletSpeed = bulletSpeed;*/
 		Vector3 forward = fireOrigin.transform.TransformDirection (Vector3.right) * 10;
-		//Debug.DrawRay (fireOrigin.transform.position, forward, Color.cyan);
+		Debug.DrawRay (fireOrigin.transform.position, forward, Color.cyan);
 
 		Debug.Log ("Fire button pressed");
 		Vector2 mousePosition = new Vector2 (
